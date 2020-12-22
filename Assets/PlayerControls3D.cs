@@ -1,22 +1,39 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerControls3D : MonoBehaviour
 {
-    public float Speed = 2;
+    public float speed = 2.0f;
 
-    private Rigidbody componentRigidbody;
+    public float jumpSpeed = 8.0f;
+
+    public float gravity = 20.0f;
+
+    private Vector3 moveDir = Vector3.zero;
+
+    private CharacterController controller;
 
     private void Start()
     {
-        componentRigidbody = GetComponent<Rigidbody>();
+        controller = GetComponent<CharacterController>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        componentRigidbody.velocity = Vector2.zero;
-        if (Input.GetKey(KeyCode.LeftArrow)) componentRigidbody.velocity += Vector3.left * Speed;
-        if (Input.GetKey(KeyCode.RightArrow)) componentRigidbody.velocity += Vector3.right * Speed;
-        if (Input.GetKey(KeyCode.UpArrow)) componentRigidbody.velocity += Vector3.forward * Speed;
-        if (Input.GetKey(KeyCode.DownArrow)) componentRigidbody.velocity += Vector3.back * Speed;
+        if (controller.isGrounded)
+        {
+            moveDir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            moveDir = transform.TransformDirection(moveDir);
+            moveDir *= speed;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && controller.isGrounded)
+        { 
+            moveDir.y = jumpSpeed;
+        }
+        moveDir.y -= gravity * Time.deltaTime;
+
+        controller.Move(moveDir * Time.deltaTime);
     }
 }
